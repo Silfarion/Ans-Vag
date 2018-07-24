@@ -1,0 +1,36 @@
+---
+
+- hosts: localhost
+  sudo: yes
+
+  tasks:
+  - name: Ensure NIP is installed.
+    apt: 
+      name=ntp
+      state=installed
+
+  - name: Ensure NTP is installed.
+    service: 
+      name=ntp
+      state=started
+      enabled=yes
+
+  - name: Install Java
+    apt:
+      name=default-jre
+      state=present
+
+  - name: Jenkins package
+    command: wget -q -O -https://pkg.jenkins.io/debian/jenkins.io.key | apt-key add -
+    command: sh -c 'echo deb http://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list'
+    become: true
+
+  - name: Update
+    apt:
+      update_cache: yes
+
+  - name: Install Jenkins
+    apt:
+      name: jenkins
+      state: latest
+      force: yes
