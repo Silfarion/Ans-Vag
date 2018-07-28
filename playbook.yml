@@ -1,6 +1,6 @@
 ---
 
-- hosts: localhost
+- hosts: gcp
   sudo: yes
 
   tasks:
@@ -20,12 +20,17 @@
       name=default-jre
       state=present
 
-#  - name: Jenkins package
-#    command: wget -q -O - https://pkg.jenkins.io/debian/jenkins-ci.org.key
-#    command: apt-key add -
-#    command: echo deb https://pkg.jenkins.io/debian-stable binary/
-#    command: sudo tee /etc/apt/sources.list.d/jenkins.list
-#    become: true
+  - name: Jenkins package
+#    command: bash -c " touch 1"
+#    command: echo '#!/bin/bash' >> 1
+    command: bash -c "wget -q -O - https://pkg.jenkins.io/debian/jenkins-ci.org.key | apt-key add -"
+    command: bash -c "echo deb https://pkg.jenkins.io/debian-stable binary/ | sudo tee /etc/apt/sources.list.d/jenkins.list"
+    become: true
+#    force: yes
+
+#  - name: Inst deb package
+#    apt:
+#      deb: https://pkg.jenkins.io/debian-stable binary/
 
   - name: Update
     apt:
@@ -48,23 +53,19 @@
       state: latest
       force: yes
 
-#  - name: Opening port 8080 for Jenkins
-#    command: ufw allow 8080
-#    command: ufw allow OpenSSH
-#    command: ufw enable
-#    become: true
-#    command: echo y
-#    force: yes
-#    install_recommends: no
-
   - name: Launching firewall
     ufw:
       state: enabled
       rule: allow
-#      port: 8080
+      port: 8080
       name: OpenSSH
 
   - name: Enabling 8080
     ufw:
       rule: allow
       port: 8080
+
+  - name: Enable HTTP
+    ufw:
+      rule: allow
+      port: 80
